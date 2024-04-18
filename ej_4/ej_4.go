@@ -26,7 +26,7 @@ func incrementar() {
 	wg.Done()
 }
 
-func main2(){
+func main(){
 	i := 0
 	for i < 100{
 		wg.Add(1)
