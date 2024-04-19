@@ -12,6 +12,11 @@ esperar por la finalización de las tareas lanzadas e imprimir que han finalizad
 
 import "fmt"
 
+func tarea (id int, tiempo int){
+	
+}
+
 func main() {
 	fmt.Println("Hola mundo")
+
 }
