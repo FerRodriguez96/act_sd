@@ -8,5 +8,25 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("Hola mundo")
+
+	// se crea un canal sin buffer de tipo int
+	ch := make (chan int)
+
+	//se llama a una gorutina
+	go func () {
+		//se establece un bucle
+		for i:= 1; i <= 10; i++{
+			//se insertan los valores que va tomando i en el canal
+			ch <- i
+		}
+		//se cierra el canal
+		close(ch)
+	}()
+	
+	//se establece un for para consumir los datos en el rango del canal
+	for datos := range ch{
+		//se imprimen los datos
+		fmt.Println("El valor consumido del canal es:" ,datos)
+	}
+
 }
