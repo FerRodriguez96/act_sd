@@ -5,3 +5,8 @@ package main
 	imprima los valores. Sugerencia: asegúrese de que está utilizando una gorutina.
 */
 
+import "fmt"
+
+func main() {
+	fmt.Println("Hola mundo")
+}
