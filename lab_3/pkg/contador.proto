@@ -6,9 +6,7 @@ option go_package = "contador/pkg"; // silencia una advertencia del compilador
 
 // -----------------servicio-----------------
 
-message Vacio {
-
-}
+message Vacio {}
 
 // TODO: Crear un mensaje denominado Valor que devuelva el valor del contador
 

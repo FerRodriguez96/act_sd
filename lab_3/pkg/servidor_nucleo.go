@@ -9,14 +9,14 @@ import (
 type Servidor struct {
 	UnimplementedContadorServer
 	// TODO: Defina un contador
-	contador int32;
+	Contador int32;
 }
 
-func NuevoServidor() Servidor {
+func NuevoServidor() *Servidor {
 	// TODO: Debe retonar una instancia del servidor definida previamente.
 	// Complete de ser necesario.
-	return Servidor{
-		contador: 0,
+	return &Servidor{
+		Contador: 0,
 	}
 }
 
@@ -25,16 +25,23 @@ func NuevoServidor() Servidor {
 // que desee.
 func (s Servidor) Obtener(ctx context.Context, msg *Vacio) (*Valor, error) {
 
-	retorno := Valor{
-		contador: s.contador,
+	valor := Valor{
+		Contador: s.Contador,
 	}
 
-	return &retorno, nil
+	return &valor, nil
 }
 
 // Implementación de Incrementar definido en el archivo `.proto`.
 // TODO: Implementar 'Incrementar'. Si se produce algún error, devuelva el mensaje de error
 // que desee.
 func (s Servidor) Incrementar(ctx context.Context, _ *Vacio) (*Valor, error) {
-	return nil, nil
+
+	s.Contador++
+
+	retorno := Valor{
+		Contador : s.Contador,
+	}
+
+	return &retorno, nil
 }

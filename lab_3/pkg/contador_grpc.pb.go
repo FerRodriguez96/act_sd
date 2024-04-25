@@ -3,7 +3,10 @@
 package pkg
 
 import (
+	context "context"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -15,6 +18,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ContadorClient interface {
+	Obtener(ctx context.Context, in *Vacio, opts ...grpc.CallOption) (*Valor, error)
+	Incrementar(ctx context.Context, in *Vacio, opts ...grpc.CallOption) (*Valor, error)
 }
 
 type contadorClient struct {
@@ -25,10 +30,30 @@ func NewContadorClient(cc grpc.ClientConnInterface) ContadorClient {
 	return &contadorClient{cc}
 }
 
+func (c *contadorClient) Obtener(ctx context.Context, in *Vacio, opts ...grpc.CallOption) (*Valor, error) {
+	out := new(Valor)
+	err := c.cc.Invoke(ctx, "/contador.Contador/Obtener", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contadorClient) Incrementar(ctx context.Context, in *Vacio, opts ...grpc.CallOption) (*Valor, error) {
+	out := new(Valor)
+	err := c.cc.Invoke(ctx, "/contador.Contador/Incrementar", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ContadorServer is the server API for Contador service.
 // All implementations must embed UnimplementedContadorServer
 // for forward compatibility
 type ContadorServer interface {
+	Obtener(context.Context, *Vacio) (*Valor, error)
+	Incrementar(context.Context, *Vacio) (*Valor, error)
 	mustEmbedUnimplementedContadorServer()
 }
 
@@ -36,6 +61,12 @@ type ContadorServer interface {
 type UnimplementedContadorServer struct {
 }
 
+func (UnimplementedContadorServer) Obtener(context.Context, *Vacio) (*Valor, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Obtener not implemented")
+}
+func (UnimplementedContadorServer) Incrementar(context.Context, *Vacio) (*Valor, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Incrementar not implemented")
+}
 func (UnimplementedContadorServer) mustEmbedUnimplementedContadorServer() {}
 
 // UnsafeContadorServer may be embedded to opt out of forward compatibility for this service.
@@ -49,13 +80,58 @@ func RegisterContadorServer(s grpc.ServiceRegistrar, srv ContadorServer) {
 	s.RegisterService(&Contador_ServiceDesc, srv)
 }
 
+func _Contador_Obtener_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Vacio)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContadorServer).Obtener(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/contador.Contador/Obtener",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContadorServer).Obtener(ctx, req.(*Vacio))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Contador_Incrementar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Vacio)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContadorServer).Incrementar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/contador.Contador/Incrementar",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContadorServer).Incrementar(ctx, req.(*Vacio))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Contador_ServiceDesc is the grpc.ServiceDesc for Contador service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Contador_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "contador.Contador",
 	HandlerType: (*ContadorServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "pkg/contador.proto",
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Obtener",
+			Handler:    _Contador_Obtener_Handler,
+		},
+		{
+			MethodName: "Incrementar",
+			Handler:    _Contador_Incrementar_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "pkg/contador.proto",
 }
