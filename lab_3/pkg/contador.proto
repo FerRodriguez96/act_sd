@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package contador;
+
+option go_package = "contador/pkg"; // silencia una advertencia del compilador
+
+// -----------------servicio-----------------
+
+message Vacio {
+
+}
+
+// TODO: Crear un mensaje denominado Valor que devuelva el valor del contador
+
+message Valor{
+    int32 contador = 1;
+}
+
+service Contador {
+    // El usuario solicita el valor del contador.
+    // TODO: la rpc se debe llamar Obtener, recibir un mensaje Vacio y
+    // retornar un mensaje Valor.
+
+    rpc Obtener (Vacio) returns (Valor);
+
+    // El usuario incrementa el contador en uno y retorna el nuevo valor del contador.
+    // TODO: la rpc se debe llamar Incrementar, recibir un mensaje Vacio y
+    // retornar un mensaje Valor.
+
+    rpc Incrementar (Vacio) returns (Valor);
+
+}
