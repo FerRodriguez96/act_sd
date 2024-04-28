@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"sync"
 
 	contador "contador/pkg"
 
@@ -19,6 +20,8 @@ const (
 var (
 	puertoServidor    string
 	direccionServidor string
+	wg sync.WaitGroup
+
 )
 
 func main() {
@@ -46,7 +49,6 @@ func main() {
 	// PASO 1:
 	// TODO: genere de forma secuencial 1000 incrementos y
 	// al final verifique el valor del contador
-
 	for i := 0; i < 1000; i++{
 		cliente.Incrementar(context.Background(), &contador.Vacio{})
 	}
@@ -54,5 +56,13 @@ func main() {
 	// PASO 2:
 	// TODO: genere 1000 gorrutinas donde cada una produce un incremento y
 	// al final verifique el valor del contador
+	for i := 0; i < 1000; i++{
+		wg.Add(1)
+		go func(){
+			defer wg.Done()
+			cliente.Incrementar(context.Background(), &contador.Vacio{})
+		}()
+	}
+	wg.Wait()
 
 }
