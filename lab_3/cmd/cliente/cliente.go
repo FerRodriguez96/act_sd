@@ -53,6 +53,13 @@ func main() {
 		cliente.Incrementar(context.Background(), &contador.Vacio{})
 	}
 
+	respSecuencial, err := cliente.Obtener(context.Background(), &contador.Vacio{})
+	if err != nil {
+		fmt.Printf("Error al obtener el valor del contador: %v\n", err)
+		return
+	}
+	fmt.Printf("Valor del contador después de incrementos secuenciales: %d\n", respSecuencial.Contador)
+
 	// PASO 2:
 	// TODO: genere 1000 gorrutinas donde cada una produce un incremento y
 	// al final verifique el valor del contador
@@ -64,5 +71,13 @@ func main() {
 		}()
 	}
 	wg.Wait()
+	
+	resp, err := cliente.Obtener(context.Background(), &contador.Vacio{})
+		if err != nil {
+    fmt.Printf("Error al obtener el valor del contador: %v\n", err)
+    return
+		}
+	fmt.Printf("Valor del contador después de incrementos concurrentes: %d\n", resp.Contador)
+
 
 }

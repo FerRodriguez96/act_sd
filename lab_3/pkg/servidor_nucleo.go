@@ -2,10 +2,6 @@ package pkg
 
 import (
 	"context"
-	"log"
-	"net"
-
-	grpc "google.golang.org/grpc"
 )
 
 // La implementación del servidor
@@ -21,19 +17,6 @@ func NuevoServidor() *Servidor {
 	return &Servidor{
 		Contador: 0,
 	}
-}
-
-func (s *Servidor) Iniciar() error {
-	servidor := grpc.NewServer()
-	RegisterContadorServer(servidor, s)
-
-	listener, err := net.Listen("tcp", ":8000")
-	if err != nil {
-		return err
-	}
-
-	log.Println("Servidor escuchando en el puerto 8000")
-	return servidor.Serve(listener)
 }
 
 // Implementación de Obtener definido en el archivo `.proto`.
