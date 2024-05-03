@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"fmt"
 )
 
 // La implementación del servidor
@@ -24,17 +25,19 @@ func NuevoServidor() *Servidor {
 // que desee.
 func (s Servidor) Obtener(ctx context.Context, msg *Vacio) (*Valor, error) {
 
-	valor := Valor{
+	respuesta := Valor{
 		Contador: s.Contador,
 	}
 
-	return &valor, nil
+	fmt.Print(&respuesta)
+
+	return &respuesta, nil
 }
 
 // Implementación de Incrementar definido en el archivo `.proto`.
 // TODO: Implementar 'Incrementar'. Si se produce algún error, devuelva el mensaje de error
 // que desee.
-func (s Servidor) Incrementar(ctx context.Context, _ *Vacio) (*Valor, error) {
+func (s *Servidor) Incrementar(ctx context.Context, _ *Vacio) (*Valor, error) {
 
 	s.Contador++
 
