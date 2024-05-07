@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"context"
-	"fmt"
 )
 
 // La implementación del servidor
@@ -13,7 +12,7 @@ type Servidor struct {
 }
 
 func NuevoServidor() *Servidor {
-	// TODO: Debe retonar una instancia del servidor definida previamente.
+	// TODO: Debe retornar una instancia del servidor definida previamente.
 	// Complete de ser necesario.
 	return &Servidor{
 		Contador: 0,
@@ -28,8 +27,6 @@ func (s Servidor) Obtener(ctx context.Context, msg *Vacio) (*Valor, error) {
 	respuesta := Valor{
 		Contador: s.Contador,
 	}
-
-	fmt.Print(&respuesta)
 
 	return &respuesta, nil
 }
