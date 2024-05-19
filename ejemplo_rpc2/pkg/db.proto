@@ -1,0 +1,35 @@
+syntax = "proto3"; 
+
+package db;
+
+option go_package = "db/pkg"; 
+
+// TODO: completar
+message ParametroPut {
+}
+
+// TODO: completar
+message ParametroGet {
+}
+
+// TODO: completar
+message ParametroGetAll {
+}
+
+// TODO: completar
+message ResultadoPut {
+}
+
+// TODO: completar
+message ResultadoGet {
+}
+
+// TODO: completar
+message ResultadoGetAll {
+}
+
+service base {
+    rpc put (ParametroPut) returns (ResultadoPut);
+    rpc get (ParametroGet) returns (ResultadoGet);
+    rpc getAll (ParametroGetAll) returns (ResultadoGetAll);
+}
