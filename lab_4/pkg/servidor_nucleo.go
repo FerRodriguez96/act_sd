@@ -9,12 +9,14 @@ import (
 type Servidor struct {
 	UnimplementedBaseServer
 	// TODO: Defina lo necesario para administrar los datos desde el servidor
+	store map[string]string
 }
 
 func NuevoServidor() Servidor {
 	// TODO: Debe retonar una instancia del servidor definida previamente.
 	// Complete de ser necesario.
-	return Servidor{
+	return &Servidor{
+
 	}
 }
 
