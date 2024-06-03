@@ -7,7 +7,7 @@ option go_package = "db/pkg";
 // TODO: completar
 message ParametroPut {
     string clave = 1;
-    string valor = 2;
+    bytes valor = 2;
 }
 
 // TODO: completar
@@ -26,12 +26,12 @@ message ResultadoPut {
 
 // TODO: completar
 message ResultadoGet {
-    string valor = 1;
+    bytes valor = 1;
 }
 
 // TODO: completar
 message ResultadoGetAll {
-    map<string, string> datos = 1;
+    map<string, bytes> datos = 1;
 }
 
 service base {
