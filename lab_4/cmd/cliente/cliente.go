@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	db "db/pkg"
 	"flag"
 	"fmt"
@@ -43,9 +44,15 @@ func main() {
 
 	// TODO:
 	// ingrese clave: 1, valor: Sistemas Distribuidos
+	cliente.Put(context.Background(), &db.ParametroPut{Clave: "1", Valor: []byte("Sistemas Distribuidos")})
 	// ingrese clave: 2, valor: Sist. Operativos
+	cliente.Put(context.Background(), &db.ParametroPut{Clave: "2", Valor: []byte("Sist. Operativos")})
 	// obtenga 2 e imprima lo devuelto
+	cliente.Get(context.Background(), &db.ParametroGet{Clave: "2"})
 	// obtenga 3 e imprima lo devuelto
+	cliente.Get(context.Background(), &db.ParametroGet{Clave: "3"})
 	// ingrese clave: 2, valor: Sistemas Operativos
+	cliente.Put(context.Background(), &db.ParametroPut{Clave: "1", Valor: []byte("Sistemas Operativos")})
 	// obtenga todos los datos almacenados e imprima lo devuelto
+	cliente.GetAll(context.Background(), &db.ParametroGetAll{})
 }
