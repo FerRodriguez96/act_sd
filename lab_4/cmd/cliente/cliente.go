@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	db "db/pkg" // Reemplaza con la ruta correcta a tu paquete db
+	db "db/pkg"
 )
 
 const (
