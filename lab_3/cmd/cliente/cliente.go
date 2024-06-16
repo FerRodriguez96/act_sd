@@ -21,8 +21,6 @@ var (
 	puertoServidor    string
 	direccionServidor string
 	wg sync.WaitGroup
-	cerrojo sync.Mutex
-
 )
 
 func main() {
@@ -67,9 +65,7 @@ func main() {
 	for i := 0; i < 1000; i++{
 		wg.Add(1)
 		go func(){
-			cerrojo.Lock()
-				cliente.Incrementar(context.Background(), &contador.Vacio{})
-			cerrojo.Unlock()
+			cliente.Incrementar(context.Background(), &contador.Vacio{})
 			defer wg.Done()
 		}()
 	}

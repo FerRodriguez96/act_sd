@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"sync"
 )
 
 // La implementación del servidor
@@ -9,6 +10,7 @@ type Servidor struct {
 	UnimplementedContadorServer
 	// TODO: Defina un contador
 	Contador int32;
+	mu sync.Mutex
 }
 
 func NuevoServidor() *Servidor {
@@ -22,7 +24,7 @@ func NuevoServidor() *Servidor {
 // Implementación de Obtener definido en el archivo `.proto`.
 // TODO: Implementar `Obtener`. Si se produce algún error, devuelva el mensaje de error
 // que desee.
-func (s Servidor) Obtener(ctx context.Context, msg *Vacio) (*Valor, error) {
+func (s *Servidor) Obtener(ctx context.Context, msg *Vacio) (*Valor, error) {
 
 	respuesta := Valor{
 		Contador: s.Contador,
@@ -36,6 +38,8 @@ func (s Servidor) Obtener(ctx context.Context, msg *Vacio) (*Valor, error) {
 // que desee.
 func (s *Servidor) Incrementar(ctx context.Context, _ *Vacio) (*Valor, error) {
 
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.Contador++
 
 	retorno := Valor{

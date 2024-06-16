@@ -34,9 +34,10 @@ func (s *Servidor) Put (ctx context.Context, msg *ParametroPut) (*ResultadoPut, 
 	if msg.Valor == nil{
 		return nil, errors.New("el valor no puede ser nulo")
 	}
+	// cerrojo para proteger la asignacion
 	s.mu.Lock()
-	
 	defer s.mu.Unlock()
+
 	s.store[msg.Clave] = msg.Valor
 
 	return &ResultadoPut{Mensaje : "Valor guardado exitosamente"}, nil
