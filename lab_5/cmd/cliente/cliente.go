@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
-	"flag"
+	"crypto/sha256"
 	"fmt"
 	"log"
+	"math/big"
+	"math/rand"
 	"strconv"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -14,78 +17,60 @@ import (
 )
 
 const (
-	DIRECCION_SERVIDOR_PREDETERMINADA string = "localhost"
 	PUERTO_SERVIDOR_PREDETERMINADO    string = "8000"
 )
 
 var (
 	puertoServidor    string
-	direccionServidor string
+	direccionServidores []string
 )
 
 func main() {
-	flag.StringVar(&puertoServidor, "p", PUERTO_SERVIDOR_PREDETERMINADO, "puerto a conectarse")
-	flag.StringVar(&direccionServidor, "d", DIRECCION_SERVIDOR_PREDETERMINADA, "dirección del servidor")
-	flag.Parse()
+	direccionServidores = []string{"localhost:8000", "localhost:8001", "localhost:8002"}
 
-	// Validar que el puerto se encuentre entre 1 y 65535
-	if !validarPuerto(puertoServidor) {
-		log.Fatalf("El puerto %s no está en el rango de 1 a 65535", puertoServidor)
+	// insercion de claves aleatorias
+	for i := 0; i < 1000; i++ {
+		clave := generarClaveAleatoria()
+		valor := "Valor" + strconv.Itoa(i)
+		Put (clave, valor)
 	}
 
-	direccion := fmt.Sprintf("%s:%s", direccionServidor, puertoServidor)
+	// Contar claves en cada nodo
+	contarClaves()
+}
 
-	// Establece una conexión con el servidor
-	conexion, _ := grpc.Dial(
-		// dirección del servidor
-		direccion,
-		// indica que se debe conectar usando TCP sin SSL
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		// bloquea el hilo hasta que la conexion se establezca
-		grpc.WithBlock(),
-	)
+func claveHash(clave string) int {
+	hash := sha256.New()
+	hash.Write([]byte(clave))
+	hashByte := hash.Sum(nil)
+	hashInt := new(big.Int).SetBytes(hashByte)
+	return int(hashInt.Int64() % int64(len(direccionServidores)))
+}
 
-	// Crea un nuevo cliente gRPC sobre la conexión
-	cliente := db.NewBaseClient(conexion)
+func NodoParaClave(clave string) string {
+	index := claveHash(clave)
+	return direccionServidores[index]
+}
 
-	// Ingrese clave: 1, valor: Sistemas Distribuidos
-	cliente.Put(context.Background(), &db.ParametroPut{Clave: "1", Valor: []byte("Sistemas Distribuidos")})
+func Put(clave, valor string) {
+    nodo := NodoParaClave(clave)
+    conexion, err := grpc.Dial(
+        nodo,
+        grpc.WithTransportCredentials(insecure.NewCredentials()),
+        grpc.WithBlock(),
+    )
+    if err != nil {
+        log.Fatalf("No se pudo conectar al servidor en %s: %v", nodo, err)
+    }
 
-	// Ingrese clave: 2, valor: Sist. Operativos
-	cliente.Put(context.Background(), &db.ParametroPut{Clave: "2", Valor: []byte("Sist. Operativos")})
+    defer conexion.Close()
+    client := db.NewBaseClient(conexion)
 
-	// Obtenga clave: 2 e imprima lo devuelto
-	resultadoGet, err := cliente.Get(context.Background(), &db.ParametroGet{Clave: "2"})
-	if err != nil {
-		log.Printf("Error al obtener clave 2: %v", err)
-	} else {
-		fmt.Printf("Valor para clave 2: %s\n", string(resultadoGet.Valor))
-	}
-
-	// Obtenga clave: 3 e imprima lo devuelto
-	resultadoGet, err = cliente.Get(context.Background(), &db.ParametroGet{Clave: "3"})
-	if err != nil {
-		log.Printf("Error al obtener clave 3: %v", err)
-	} else {
-		fmt.Printf("Valor para clave 3: %s\n", string(resultadoGet.Valor))
-	}
-
-	// Ingrese clave: 2, valor: Sistemas Operativos
-	_, err = cliente.Put(context.Background(), &db.ParametroPut{Clave: "2", Valor: []byte("Sistemas Operativos")})
-	if err != nil {
-		log.Fatalf("Error al actualizar clave 2: %v", err)
-	}
-
-	// Obtenga todos los datos almacenados e imprima lo devuelto
-	resultadoGetAll, err := cliente.GetAll(context.Background(), &db.ParametroGetAll{})
-	if err != nil {
-		log.Fatalf("Error al obtener todos los datos: %v", err)
-	} else {
-		fmt.Println("Datos almacenados:")
-		for clave, valor := range resultadoGetAll.Datos {
-			fmt.Printf("Clave: %s, Valor: %s\n", clave, string(valor))
-		}
-	}
+    _, err = client.Put(context.Background(), &db.ParametroPut{Clave: clave, Valor: []byte(valor)})
+    if err != nil {
+        log.Fatalf("Error al insertar clave %s en el nodo %s: %v", clave, nodo, err)
+    }
+    fmt.Printf("Clave %s insertada en el nodo %s\n", clave, nodo)
 }
 
 func validarPuerto(puerto string) bool {
@@ -94,4 +79,34 @@ func validarPuerto(puerto string) bool {
 		return false
 	}
 	return p > 0 && p <= 65535
+}
+
+func contarClaves(){
+	for _, nodo := range direccionServidores {
+		conexion, err := grpc.Dial(
+			nodo,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithBlock(),
+		)
+	
+		if err != nil {
+			log.Fatalf("No se pudo conectar al servidor en %s: %v", nodo, err)
+		}
+
+		defer conexion.Close()
+		cliente := db.NewBaseClient(conexion)
+
+		resultadoGetAll, err := cliente.GetAll(context.Background(), &db.ParametroGetAll{}) 
+		if err != nil {
+			log.Fatalf("Error al obtener todos los datos del nodo %s: %v", nodo, err)
+		} else {
+			fmt.Printf("Nodo %s tiene %d claves almacenadas\n", nodo, len(resultadoGetAll.Datos))
+		}
+
+	}	
+}
+
+func generarClaveAleatoria() string {
+	rand.Seed(time.Now().UnixNano())
+	return fmt.Sprintf("%x", rand.Int63())
 }
