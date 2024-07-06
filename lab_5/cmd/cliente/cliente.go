@@ -116,5 +116,10 @@ func contarClaves(){
 
 func generarClaveAleatoria() string {
 	rand.Seed(time.Now().UnixNano())
-	return fmt.Sprintf("%x", rand.Int63())
+	clave := fmt.Sprintf("%x", rand.Int63())
+	if clave == "" {
+		log.Println("Advertencia: Se generó una clave vacía. Generando una nueva clave...")
+		return generarClaveAleatoria() // Intenta generar una nueva clave si la anterior es vacía
+	}
+	return clave
 }
