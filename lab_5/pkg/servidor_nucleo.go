@@ -4,9 +4,6 @@ import (
 	"context"
 	"errors"
 	"sync"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 // La implementación del servidor
@@ -14,30 +11,21 @@ type Servidor struct {
 	UnimplementedBaseServer
 	// TODO: Defina lo necesario para administrar los datos desde el servidor
 	store map[string][]byte
-	nodos []string
 	mu sync.Mutex
 }
 
-func NuevoServidor(nodos []string) *Servidor {
+func NuevoServidor() *Servidor {
 	// TODO: Debe retonar una instancia del servidor definida previamente.
-	for _, nodo := range nodos {
-		conn, _ := grpc.Dial(
-			nodo,
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		)
-
-	}
 	// Complete de ser necesario.
 	return &Servidor{
 		store: make(map[string][]byte),
-		nodos: nodos,
 	}
 }
 
 // Implementación de put definido en el archivo `.proto`.
 // TODO: Implementar `Put`. Si se produce algún error, devuelva el mensaje de error
 // que desee.
-func (s *Servidor) Put (ctx context.Context, msg *ParametroPut) (*ResultadoPut, error) {
+func (s *Servidor) Put(ctx context.Context, msg *ParametroPut) (*ResultadoPut, error) {
 	//verificar si la clave es nula
 	if msg.Clave == ""{
 		return nil, errors.New("la clave no puede ser nula")

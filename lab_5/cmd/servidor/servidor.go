@@ -20,12 +20,13 @@ func main() {
 	listen, err := net.Listen("tcp", *addr) 
 
 	if err == nil {
-		log.Println("Servidor escuchando en puerto 8000")
+		log.Printf("Servidor escuchando en puerto %s", *addr )
 	}
 
 	if err != nil {
 		log.Fatalf("fallo al escuchar: %v", err)
 	}
+	
 	if err := servidorReal.Serve(listen); err != nil {
 		log.Fatalf("fallo al servir: %v", err)
 	}

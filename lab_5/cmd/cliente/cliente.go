@@ -21,11 +21,12 @@ const (
 )
 
 var (
-	puertoServidor    string
 	direccionServidores []string
 )
 
 func main() {
+
+	//definicion de array de direcciones
 	direccionServidores = []string{"localhost:8000", "localhost:8001", "localhost:8002"}
 
 	// insercion de claves aleatorias
@@ -39,16 +40,31 @@ func main() {
 	contarClaves()
 }
 
+//funcion hash
 func claveHash(clave string) int {
 	hash := sha256.New()
 	hash.Write([]byte(clave))
 	hashByte := hash.Sum(nil)
 	hashInt := new(big.Int).SetBytes(hashByte)
-	return int(hashInt.Int64() % int64(len(direccionServidores)))
-}
+	cant_serv := len(direccionServidores)
+	
+	if cant_serv == 0{
+		log.Fatal("No hay servidores disponibles")
+	}
 
+	index := int(hashInt.Int64() % int64(cant_serv))
+
+	if index < 0 {
+		index = -index
+	}
+	return index
+}
+//asignacion de la clave hash a los nodos
 func NodoParaClave(clave string) string {
 	index := claveHash(clave)
+	if index < 0 || index >= len(direccionServidores){
+		log.Fatalf("Indice de servidor fuera de rango: %d", index)
+	}
 	return direccionServidores[index]
 }
 
@@ -64,21 +80,13 @@ func Put(clave, valor string) {
     }
 
     defer conexion.Close()
-    client := db.NewBaseClient(conexion)
+    cliente := db.NewBaseClient(conexion)
 
-    _, err = client.Put(context.Background(), &db.ParametroPut{Clave: clave, Valor: []byte(valor)})
+    _, err = cliente.Put(context.Background(), &db.ParametroPut{Clave: clave, Valor: []byte(valor)})
     if err != nil {
         log.Fatalf("Error al insertar clave %s en el nodo %s: %v", clave, nodo, err)
     }
     fmt.Printf("Clave %s insertada en el nodo %s\n", clave, nodo)
-}
-
-func validarPuerto(puerto string) bool {
-	p, err := strconv.Atoi(puerto)
-	if err != nil {
-		return false
-	}
-	return p > 0 && p <= 65535
 }
 
 func contarClaves(){
