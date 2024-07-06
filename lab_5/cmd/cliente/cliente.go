@@ -21,13 +21,13 @@ const (
 )
 
 var (
-	direccionServidores []string
+	direccionLideres []string
 )
 
 func main() {
 
 	//definicion de array de direcciones
-	direccionServidores = []string{"localhost:8000", "localhost:8001", "localhost:8002"}
+	direccionLideres = []string{"localhost:8000", "localhost:8001", "localhost:8002"}
 
 	// insercion de claves aleatorias
 	for i := 0; i < 1000; i++ {
@@ -46,7 +46,7 @@ func claveHash(clave string) int {
 	hash.Write([]byte(clave))
 	hashByte := hash.Sum(nil)
 	hashInt := new(big.Int).SetBytes(hashByte)
-	cant_serv := len(direccionServidores)
+	cant_serv := len(direccionLideres)
 	
 	if cant_serv == 0{
 		log.Fatal("No hay servidores disponibles")
@@ -62,10 +62,10 @@ func claveHash(clave string) int {
 //asignacion de la clave hash a los nodos
 func NodoParaClave(clave string) string {
 	index := claveHash(clave)
-	if index < 0 || index >= len(direccionServidores){
+	if index < 0 || index >= len(direccionLideres){
 		log.Fatalf("Indice de servidor fuera de rango: %d", index)
 	}
-	return direccionServidores[index]
+	return direccionLideres[index]
 }
 
 func Put(clave, valor string) {
@@ -90,7 +90,7 @@ func Put(clave, valor string) {
 }
 
 func contarClaves(){
-	for _, nodo := range direccionServidores {
+	for _, nodo := range direccionLideres{
 		conexion, err := grpc.Dial(
 			nodo,
 			grpc.WithTransportCredentials(insecure.NewCredentials()),

@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"sync"
+
+	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // La implementación del servidor
@@ -12,13 +15,19 @@ type Servidor struct {
 	// TODO: Defina lo necesario para administrar los datos desde el servidor
 	store map[string][]byte
 	mu sync.Mutex
+	direccion string
+	esLider bool
+	seguidores []string
 }
 
-func NuevoServidor() *Servidor {
+func NuevoServidor(direccion string, esLider bool, seguidores []string) *Servidor {
 	// TODO: Debe retonar una instancia del servidor definida previamente.
 	// Complete de ser necesario.
 	return &Servidor{
 		store: make(map[string][]byte),
+		direccion: direccion,
+		esLider: esLider,
+		seguidores: seguidores,
 	}
 }
 
@@ -36,9 +45,31 @@ func (s *Servidor) Put(ctx context.Context, msg *ParametroPut) (*ResultadoPut, e
 	}
 	// cerrojo para proteger la asignacion
 	s.mu.Lock()
+	s.store[msg.Clave] = msg.Valor
 	defer s.mu.Unlock()
 
-	s.store[msg.Clave] = msg.Valor
+	if s.esLider {
+		for _, seguidor := range s.seguidores {
+			conexion, err := grpc.Dial(
+				seguidor,
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithBlock(),
+			)
+
+			if err != nil {
+				return nil, err
+			}
+
+			defer conexion.Close()
+			cliente := NewBaseClient(conexion)
+			_, err = cliente.Put(context.Background(), &ParametroPut{})
+
+			if err != nil {
+				return nil, err
+			}
+
+		}
+	}
 
 	return &ResultadoPut{Mensaje : "Valor guardado exitosamente"}, nil
 }
