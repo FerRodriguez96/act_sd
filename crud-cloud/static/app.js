@@ -1,4 +1,4 @@
-// const apiUrl = 'http:///tareas';
+const apiUrl = 'http://18.228.59.29/tareas';
 
 document.addEventListener('DOMContentLoaded', obtenerTareas);
 
