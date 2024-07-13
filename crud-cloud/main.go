@@ -5,10 +5,12 @@ import (
     "log"
     "net/http"
     "github.com/gorilla/mux"
+    "github.com/gorilla/handlers"
 )
 
+// Tarea representa una estructura para las tareas
 type Tarea struct {
-    ID   string `json:"id"`
+    ID     string `json:"id"`
     Nombre string `json:"nombre"`
 }
 
@@ -71,10 +73,21 @@ func eliminarTarea(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     enrutador := mux.NewRouter()
+
+    // Rutas API
     enrutador.HandleFunc("/tareas", obtenerTareas).Methods("GET")
     enrutador.HandleFunc("/tareas/{id}", obtenerTarea).Methods("GET")
     enrutador.HandleFunc("/tareas", crearTarea).Methods("POST")
     enrutador.HandleFunc("/tareas/{id}", actualizarTarea).Methods("PUT")
     enrutador.HandleFunc("/tareas/{id}", eliminarTarea).Methods("DELETE")
-    log.Fatal(http.ListenAndServe(":8000", enrutador))
+
+    // Servir archivos estáticos
+    enrutador.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
+
+    // Manejo de CORS
+    cabecerasOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+    metodosOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
+    orígenesOk := handlers.AllowedOrigins([]string{"*"})
+
+    log.Fatal(http.ListenAndServe(":8000", handlers.CORS(cabecerasOk, metodosOk, orígenesOk)(enrutador)))
 }
